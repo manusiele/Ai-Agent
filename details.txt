@@ -1,0 +1,96 @@
+Prompt Title: Design and Develop a Secure PHP Political Sentiment Analysis App with OAuth Authentication and n8n Integration
+
+Objective:
+
+Create a PHP-based web application for political use that enables users to log into their social media accounts (Facebook, Instagram, X, YouTube) using OAuth 2.0, monitor comments at configurable intervals, send them to an existing n8n AI agent for sentiment analysis, save feedback locally based on positive or negative sentiment, and provide a user-friendly GUI. The app should include a splash screen, login interface, dashboard, and settings page, with a focus on security, political context, and real-time data management.
+
+Detailed Requirements:
+
+1. General Application Structure
+Technology Stack: Use PHP 7.4+ with a web server (e.g., Apache), MySQL for local storage, and HTML/CSS/JavaScript for the GUI. Leverage PHP libraries like cURL for HTTP requests and a supported OAuth library (e.g., PHP League OAuth2 Client).
+Security: Enforce HTTPS, sanitize all inputs, store sensitive data (e.g., tokens, webhook URL) in encrypted environment variables or a secure config file, and include CSRF protection.
+Assumption: The n8n AI agent is already operational with a webhook (e.g., https://your-n8n-instance.app/webhook/sentiment-analysis) accepting POST requests with a secret token for authentication.
+2. GUI Design and Flow
+Splash Screen:
+Purpose: Introduce the app and set the tone for political use.
+Design: Display a full-screen image with a political theme (e.g., ballot box, flag), the app name (e.g., "PolitiSense"), and a loading animation. Include a tagline like “Real-Time Political Insights.”
+Duration: Show for 3-5 seconds before redirecting to the login page.
+Interactivity: No user input; transition automatically.
+Login Interface:
+Purpose: Allow users to authenticate with their social media accounts.
+Design: A clean page with a centered form containing buttons for each platform (Facebook, Instagram, X, YouTube) styled as social media icons (e.g., blue for Facebook, black for Instagram).
+Features:
+Each button triggers an OAuth 2.0 flow, redirecting to the platform’s login page.
+Display a progress indicator (e.g., spinning loader) during authentication.
+Include a logout option and a link to a privacy policy.
+Layout: Header with app logo, main section with buttons, footer with legal text.
+Dashboard:
+Purpose: Provide an overview of monitored data, sentiment analysis, and feedback.
+Design: A multi-panel layout with a sidebar menu (Home, Settings, Logout) and a main content area.
+Features:
+Comment Feed Panel: List recent comments per platform (e.g., username, text, timestamp) with a refresh button tied to interval checks.
+Sentiment Summary Panel: Pie chart or bar graph showing positive vs. negative sentiment percentages (update on interval refresh).
+Feedback Log Panel: Table of saved feedback (comment, sentiment, feedback text, date), sortable by date or sentiment.
+Alert Section: Highlight critical sentiment shifts or keyword matches (e.g., “election fraud”) with a bell icon.
+Interactivity: Clickable comments to view details, refresh button, and export feedback option (e.g., CSV download).
+Settings Page:
+Purpose: Configure app behavior and manage accounts.
+Design: A tabbed layout with sections for Account Management, Interval Settings, and Privacy Options.
+Features:
+Account Management: List connected accounts with re-authenticate and remove buttons; add new platform option.
+Interval Settings: Input fields for interval duration per platform (e.g., 5-60 minutes), with a save button and validation (e.g., min 1 minute).
+Privacy Options: Toggle for data anonymization, consent confirmation, and link to update privacy preferences.
+Interactivity: Real-time validation of interval inputs, confirmation dialogs for account changes.
+3. Functionality
+Authentication Flow:
+Implement OAuth 2.0 for each platform using registered app credentials (e.g., App ID, Secret from Facebook Developer Portal).
+Redirect users to platform login, handle callback with authorization code, exchange for access/refresh tokens, and store securely.
+Validate tokens before interval checks, refreshing as needed.
+Interval-Based Monitoring:
+Use a PHP scheduler (e.g., cron job) or JavaScript setInterval to trigger API calls at user-defined intervals per platform.
+Fetch new comments using platform APIs (e.g., Facebook Graph API, Twitter API v2) with authenticated tokens, filtering by timestamp or pagination.
+Handle rate limits with exponential backoff and user notifications.
+n8n Integration:
+Send comments to the n8n webhook (e.g., POST https://your-n8n-instance.app/webhook/sentiment-analysis) with a JSON payload (e.g., {"text": "comment", "platform": "x"}) and secret token.
+Parse the response (e.g., {"sentiment": "Positive", "confidence": 0.87}) to determine feedback category.
+Feedback Generation and Storage:
+Define templates for feedback (e.g., “Thank you for your support!” for positive, “We’re addressing your concern” for negative).
+Save feedback to a local MySQL database with columns (comment_id, text, sentiment, feedback, timestamp), indexed for quick retrieval.
+Categorize as positive (confidence > 0.6) or negative (confidence < 0.4), with neutral as optional.
+Dashboard Updates:
+Refresh data on interval completion, updating the comment feed, sentiment summary, and feedback log.
+Use JavaScript (e.g., Chart.js) to render the sentiment graph dynamically.
+4. Security Measures
+Encryption: Store tokens and webhook URL in encrypted environment variables (e.g., via .env file with PHPdotenv).
+Input Validation: Sanitize API responses and user inputs to prevent XSS or injection.
+Access Control: Restrict dashboard access with session management, requiring login.
+Compliance: Include a privacy policy and consent form for OAuth data use, aligning with GDPR and local laws.
+5. Political Enhancements
+Competitor Tracking: Filter comments for opponent names or slogans, highlighting sentiment in the dashboard.
+Issue Analysis: Tag comments by political themes (e.g., healthcare), displayed in the summary panel.
+Alerts: Set thresholds for sentiment shifts, notifying via dashboard pop-ups.
+Feedback Customization: Allow users to edit templates in settings for political context.
+6. Development Guidelines
+Modularity: Structure code with separate files for authentication, monitoring, and GUI (e.g., auth.php, monitor.php, dashboard.php).
+Error Handling: Log errors (e.g., API failures) to a file and display user-friendly messages.
+Testing: Simulate OAuth flows, interval checks, and n8n responses with mock data; test dashboard updates and storage.
+Deployment: Host on a secure server (e.g., AWS, DigitalOcean) with HTTPS via Let’s Encrypt.
+Instructions for Cursor:
+
+Analyze the requirements and design a step-by-step plan to build the app, starting with the splash screen and progressing to the dashboard and settings.
+Focus on creating a user-friendly GUI with detailed layouts, ensuring responsiveness for desktop and mobile.
+Implement the OAuth 2.0 flow for each platform, integrating with their APIs for comment retrieval.
+Develop the interval-based monitoring logic, ensuring it aligns with n8n webhook calls and local feedback storage.
+Incorporate security measures and political features, providing comments on potential challenges (e.g., rate limits, compliance).
+Suggest a testing strategy to validate each component, including edge cases (e.g., token expiration, no comments).
+Provide a deployment checklist, emphasizing server setup and security configuration.
+Output Expectations:
+
+A detailed design document or plan outlining each step, including GUI mockups (text descriptions), workflow logic, and security considerations.
+No actual code, but pseudocode or flowcharts (text-based) to illustrate the process.
+Recommendations for iterative development and user feedback incorporation.
+Context Notes:
+
+The app targets political users (e.g., campaign managers) needing real-time insights.
+The n8n AI agent is pre-existing, with a webhook URL and secret token to be provided by the user.
+Focus on a secure, scalable solution with a professional GUI, suitable for political decision-making.
