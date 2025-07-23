@@ -1,0 +1,231 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sentiment-analysis",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        48
+      ],
+      "id": "7f602989-ae62-429c-8b82-0d7fc2d64b5f",
+      "webhookId": "6ffea983-7f56-4a92-9e50-97896c84f907"
+    },
+    {
+      "parameters": {
+        "prompt": "=Detect the language of this text and return only the language code (e.g., 'en', 'sw'): {{$node[\"Webhook\"].json.body.text}}",
+        "options": {},
+        "requestOptions": {}
+      },
+      "name": "Detect Language",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        48
+      ],
+      "id": "08f2e069-1017-491a-add8-23b425bf3be3",
+      "credentials": {
+        "openAiApi": {
+          "id": "V4he5c5bPhQhebUI",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$node[\"Detect Language\"].json.choices[0].message.content}}",
+              "operation": "notEqual",
+              "value2": "en"
+            }
+          ]
+        }
+      },
+      "name": "Check Language",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        48
+      ],
+      "id": "ea430223-3da9-48e5-9edf-86f86b7b23b1"
+    },
+    {
+      "parameters": {
+        "prompt": "=Translate this text to English: {{$node[\"Webhook\"].json.body.text}}",
+        "options": {},
+        "requestOptions": {}
+      },
+      "name": "Translate to English",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -64
+      ],
+      "id": "d67aaa44-d8f0-4af1-b714-42a536236180",
+      "alwaysOutputData": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "V4he5c5bPhQhebUI",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "name": "No Translation Needed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        144
+      ],
+      "id": "28b22827-0305-4833-8036-c41fd063cb58"
+    },
+    {
+      "parameters": {
+        "prompt": "=Analyze this text and return a JSON object with 'sentiment' ('Positive', 'Negative', or 'Neutral') and 'confidence' (a number between 0 and 1): {{$node[\"Translate to English\"].json.choices[0].message.content || $node[\"Webhook\"].json.body.text}}",
+        "options": {},
+        "requestOptions": {}
+      },
+      "name": "Sentiment Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        128,
+        48
+      ],
+      "id": "b513c42e-6058-40ac-85c5-26301685ba9e",
+      "credentials": {
+        "openAiApi": {
+          "id": "V4he5c5bPhQhebUI",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "sentiment",
+              "value": "={{$node[\"Sentiment Analysis\"].json.choices[0].message.content.sentiment}}"
+            },
+            {
+              "name": "confidence",
+              "value": "={{$node[\"Sentiment Analysis\"].json.choices[0].message.content.confidence}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Format Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        352,
+        48
+      ],
+      "id": "4bea57af-f5fc-4b30-b705-e269146da902"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Detect Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Language": {
+      "main": [
+        [
+          {
+            "node": "Check Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Language": {
+      "main": [
+        [
+          {
+            "node": "Translate to English",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Translation Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translate to English": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Translation Needed": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f4874a36-e052-496a-bd64-f9c02d1cddb1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6c795ff16b5551cdedd32bf9cc965e8e95b39c33e0f1ebf535ce4e852bda81a0"
+  },
+  "id": "sRgZrkcolYMyGVl1",
+  "tags": []
+}
